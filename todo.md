@@ -2,7 +2,7 @@
 
 ### Todos
 
--[] add members
+- [] add members
 
 ### ongoing
--[] explorational data analysis
+- [] explorational data analysis
