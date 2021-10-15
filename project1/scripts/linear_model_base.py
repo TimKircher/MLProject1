@@ -2,6 +2,7 @@ from proj1_helpers import *
 from build_polynomial import build_poly
 from abc import ABCMeta, abstractmethod
 from k_fold_validate_matthias import build_k_indices
+from ridge_regression_matthias import ridge_regression
 from costs import compute_mse
 import numpy as np
 
@@ -44,7 +45,7 @@ class LinearModel:
     def _run(self, *args, **kwargs):
         raise NotImplementedError("Must override with actual model")
                 
-from ridge_regression_matthias import ridge_regression
+
 
 class RidgeRegression(LinearModel):
     def _run(self, y=None, tx=None, *args, **kwargs):

@@ -1,6 +1,8 @@
 #k_fold cross validation as implemented by Matthias and given in excercises
 import numpy as np
 from least_squares_matthias import least_squares
+from ridge_regression_matthias import ridge_regression
+from costs import compute_mse
 
 def build_k_indices(y, k_fold, seed):
     """build k indices for k-fold."""
@@ -13,38 +15,25 @@ def build_k_indices(y, k_fold, seed):
     return np.array(k_indices)
 
 
-def cross_validation(y, x, k_indices, k, lambda_, degree):
+def cross_validation(y, x, k_indices, k, lambda_,method="rrg"):
     """return the loss of ridge regression."""
-    # ***************************************************
-    # INSERT YOUR CODE HERE
-    # get k'th subgroup in test, others in train: TODO
-    # ***************************************************
+
     test_indices = k_indices[k].flatten()
     train_indices = np.delete(k_indices,k,0).flatten()
     
-    # ***************************************************
-    # INSERT YOUR CODE HERE
-    # form data with polynomial degree: TODO
-    # ***************************************************
     test_data = x[test_indices]
     train_data = x[train_indices]
-    test_poly = build_poly(test_data,degree)
-    train_poly = build_poly(train_data,degree)
     y_test = y[test_indices]
     y_train = y[train_indices]
-    # ***************************************************
-    # INSERT YOUR CODE HERE
-    # ridge regression: TODO
-    # ***************************************************
+
+    if method =="rrg":
+        ridge_mse, ridge_w = ridge_regression(y_train, train_data, lambda_)
+    elif method =="lsne":
+        ridge_mse, ridge_w = least_squares(y_train, train_data)
     
-    ridge_mse, ridge_w = ridge_regression(y_train, train_poly, lambda_)
-    
-    # ***************************************************
-    # INSERT YOUR CODE HERE
-    # calculate the loss for train and test data: TODO
-    # ***************************************************
-    loss_tr = compute_mse(y_train, train_poly,ridge_w)
-    loss_te = compute_mse(y_test, test_poly,ridge_w)
+
+    loss_tr = compute_mse(y_train, train_data,ridge_w)
+    loss_te = compute_mse(y_test, test_data,ridge_w)
     return loss_tr, loss_te
 
 
