@@ -2,7 +2,15 @@
 
 ### Todos
 
-- [ ] add members
+- [x] add members
+- [ ] create and share overleaf document
+- [ ] share and create google docs
 
 ### ongoing
-- [ ] explorational data analysis
+- [x] explorational data analysis
+- [ ] build polynomial features
+  - [x] simple expansion, find optimal parameters
+
+### implement stuff
+- [ ] normalization instead of standardization
+- [ ] replace features by mean, median, mode?
