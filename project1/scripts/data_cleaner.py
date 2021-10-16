@@ -2,8 +2,63 @@ from proj1_helpers import *
 from build_polynomial import build_poly
 
 class Data_Cleaner:
+    """ Class for data cleaning and feature processing of the higgs dataset
+    
+    Data_cleaner(FILEPATH)
+    
+    Returns the datacleaner object with data, labels and ids.
+    
+    Attributes
+    ----------
+    data          : None
+                    Not used
+    feature_names : dict
+                    dictionary {feature_name: feature collumn index} 
+                    containing the feature names 
+    y             : Numpy array shape (N_samples,)
+                    containing the datasets predictions, if given
+    tX            : Numpy array shape (N_samples, D_features)
+                    containing the datasets data
+    ids           : Numpy array shape (N_samples,)
+                    containing the datasets ids       
+    DATAPATH      : string
+                    The path where the dataset.csv file can be found
+    
+    Methods
+    -------
+    _load_data(DATAPATH)
+        loads the dataset if the DATAPATH was not given during initialization of object.
+        overwrites current ids, tX and y
+    
+    _fill_with_NAN()
+        fills data values of -999. with np.NaN
+    
+    replace_with_mean()
+        replaces np.NaN values with features nanmean
+    
+    normalize()
+        standardizes! data by substracting with features mean and dividing by its standard deviation
+        can not handle NaNs
+        
+    transform_to_pca(max_var,max_eigenvalue)
+        performs principal component analysis using the covariance matrix.
+        builds projection matrix of the principal components that have a combined explained variance 
+        ratio larger than max_var.
+        the projection matrix can also restricted to max_eigenvalues principal components.
+    
+        
+    build_polynomials_from_degree_array(degrees)
+        basis expansion of the features from an array that contains possible optimal degrees of expansion
+        degrees must be a numpy array of shape (D_features,)
+        e.g. degrees is a numpy array ([0,10,0,0 .... 3,0]
+        meaning that the second feature will be expanded in a polynomial basis of 1st to 10th order
+        a degree of 0 of a feature means, that the feature collum will be deleted
+
+    """
     
     def _load_data(self, DATAPATH):
+        """function that loads the dataset in .csv format from DATAPATH
+        """
         self.y, self.tX, self.ids = load_csv_data(DATAPATH)
         with open(DATAPATH) as fileobj:
             feature_names = fileobj.readline().rstrip("\n")
@@ -12,6 +67,7 @@ class Data_Cleaner:
             self.feature_names = {x:v for v,x in enumerate(feature_names)}
             
     def __init__(self, DATAPATH=None):
+
         self.data = None
         self.feature_names = None
         self.y = None
@@ -24,6 +80,8 @@ class Data_Cleaner:
             
             
     def _fill_with_NaN(self):
+        """fills the values that are -999. with np.NaN
+        """
         for feature_name, index in self.feature_names.items():
             self.tX[:,index][self.tX[:,index] == -999.] = np.NaN
         
@@ -35,22 +93,24 @@ class Data_Cleaner:
                 self.tX[:,index][self.tX[:,index] == 0] = np.NaN"""
     
     def replace_with_mean(self):
+        """replaces np.NaN values with collum (feature) mean 
+        """
+        #TODO: Replace with mode, median, binary, hash ?
+        
         #self._fill_with_NaN() #make auto_later
         #also handles all NaN collums -> replaces with 0
         self.tX = np.where(np.isnan(self.tX), np.ma.array(self.tX, mask=np.isnan(self.tX)).mean(axis=0), self.tX)
             
     def normalize(self):
+        """standardizes data
+        """
         self.tX -= np.nanmean(self.tX,axis=0)
         self.tX /= np.nanstd(self.tX,axis=0)
         
     
-    def easy_clean(self):
-        #loaded -> replace_with_mean -> normalize
-        self.replace_with_mean()
-        self.normalize()
-        
-    
     def transform_to_pca(self,max_var=0.95,max_eigenvalue=None):
+        """pca transformation
+        """
         #self.normalize() make auto_later
         cov_mat = np.cov(self.tX.T) #calculate covariance matrix
         eigval_pca, eigvec_pca = np.linalg.eig(cov_mat) #can not be orderd, but they are here
@@ -67,21 +127,6 @@ class Data_Cleaner:
         
         self.tX = self.tX @  projection_mat
     
-    def make_features(self,max_percentage=0.99,degree=1):
-        #self._fill_with_NaN() make auto later
-        poly_features = []
-        for feature_name, index in self.feature_names.items():
-            percentage = np.count_nonzero(~np.isnan(self.tX[:,index]))/len(self.tX[:,index])
-            print(percentage)
-            if percentage < 0.99:
-                indices = np.isnan(self.tX[:,index])
-                self.tX[:,index][indices] = 0.
-                self.tX[:,index][~indices] = 1.
-            else:
-                if index != self.feature_names["PRI_jet_num"]:
-                    #check this!!
-                    
-                    poly_features.append(build_poly(self.tX[:,index],degree)[:,1:])
         #standardize before or after building polynomial features?
         #-> https://datascience.stackexchange.com/questions/9020/do-i-have-to-standardize-my-new-polynomial-features
         #- do after!! otherwise features are an order of magnitude smaller
@@ -89,11 +134,10 @@ class Data_Cleaner:
         #standardize binary values?
         #rather not, does not make sense...
         #https://stats.stackexchange.com/questions/59392/should-you-ever-standardise-binary-variables
-        
-        polys = np.concatenate(poly_features,axis=1)
-        self.tX  = np.concatenate([self.tX, polys], axis=1)
     
     def build_polynomials_from_degree_array(self,degrees):
+        """building polynomial features from array
+        """
         #self.replace_with_mean() make auto_later
         data_polys = []
         
