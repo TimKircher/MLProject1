@@ -100,7 +100,12 @@ class Data_Cleaner:
         #self._fill_with_NaN() #make auto_later
         #also handles all NaN collums -> replaces with 0
         self.tX = np.where(np.isnan(self.tX), np.ma.array(self.tX, mask=np.isnan(self.tX)).mean(axis=0), self.tX)
-            
+      
+    def replace_with_zero(self):
+        """replaces np.NaN values with 0 
+        """
+        self.tX[np.isnan(self.tX)] = 0
+    
     def normalize(self):
         """standardizes data
         """
