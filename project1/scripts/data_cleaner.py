@@ -40,6 +40,9 @@ class Data_Cleaner:
         standardizes! data by substracting with features mean and dividing by its standard deviation
         can not handle NaNs
         
+    standadize()
+        standardizes! data to range 0 to 1
+        
     transform_to_pca(max_var,max_eigenvalue)
         performs principal component analysis using the covariance matrix.
         builds projection matrix of the principal components that have a combined explained variance 
@@ -100,18 +103,43 @@ class Data_Cleaner:
         #self._fill_with_NaN() #make auto_later
         #also handles all NaN collums -> replaces with 0
         self.tX = np.where(np.isnan(self.tX), np.ma.array(self.tX, mask=np.isnan(self.tX)).mean(axis=0), self.tX)
-      
+     
+    
     def replace_with_zero(self):
         """replaces np.NaN values with 0 
         """
         self.tX[np.isnan(self.tX)] = 0
+        
+    def replace_with_one(self):
+        """replaces np.NaN values with 1 
+        """
+        self.tX[np.isnan(self.tX)] = 1
     
     def normalize(self):
         """standardizes data
         """
-        self.tX -= np.nanmean(self.tX,axis=0)
-        self.tX /= np.nanstd(self.tX,axis=0)
+        mean = np.nanmean(self.tX,axis=0)
+        std = np.nanstd(self.tX,axis=0)
         
+        self.tX = (self.tX-mean)/std
+    
+    def standardize(self):
+        """standardizes data
+        """
+        minimum = np.min(self.tX,axis=0)
+        maximum = np.max(self.tX,axis=0)
+        
+        self.tX = (self.tX-minimum)/(maximum-minimum)
+     
+    def getMinMax(self):
+        """get min and max to scale testset
+        """
+        return np.min(self.tX, axis=0), np.max(self.tX, axis=0)
+    
+    def getMeanStd(self):
+        """standardizes data
+        """
+        return np.mean(self.tX, axis=0), np.std(self.tX, axis=0)
     
     def transform_to_pca(self,max_var=0.95,max_eigenvalue=None):
         """pca transformation
