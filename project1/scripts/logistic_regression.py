@@ -2,22 +2,25 @@ import numpy as np
 
 def sigmoid(t):
     """apply the sigmoid function on t."""
-    t = np.clip(t, -10,10) #This line is useful for large values
+    t = np.clip(t, -25,25) #This line is useful for large values
     return 1./(1.+np.exp(-t))
-
-def logistic regression(y, tx, initial w, max_iters, gamma):
-    for i in range(max_iters):
-        pass
-    
 
 def calculate_loss(y, tx, w):
     """compute the loss: negative log likelihood."""
     loss = - np.sum([ prediciton * np.log(sigmoid(sample.T @ w)) + (1-prediciton)*np.log(1-sigmoid(sample.T @ w )) for prediciton, sample in zip(y,tx)])
     return loss    
 
-def calculate_loss_fast(y,tx,w):
+def calculate_loss_fast(y_ext, x_ext,w):
     """compute the loss: negative log likelihood."""
-    loss = np.sum(np.log(1 + np.exp(tx @ w))) -  y.T @ tx @ w 
+    y = np.copy(y_ext)
+    y[y > 0] = 1
+    y[y < 0] = 0
+    
+    x = np.copy(x_ext)
+    # build tx
+    tx = np.c_[np.ones((y.shape[0], 1)), x_ext]
+    
+    loss = np.sum(np.log(1 + np.exp(np.clip(tx @ w,-25,25)))) -  y.T @ tx @ w 
     return loss
 
 def calculate_gradient(y, tx, w):
@@ -45,9 +48,9 @@ def logistic_regression_gradient_descent_demo(y, x):
     threshold = 1e-8
     gamma = 0.01
     losses = []
-
+    x_ext = np.copy(x)
     # build tx
-    tx = np.c_[np.ones((y.shape[0], 1)), x]
+    tx = np.c_[np.ones((y.shape[0], 1)), x_ext]
     w = np.zeros((tx.shape[1], 1))
 
     # start the logistic regression
@@ -58,19 +61,25 @@ def logistic_regression_gradient_descent_demo(y, x):
         if iter % 100 == 0:
             print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
 
-def logistic regression(y, x, initial_w=None, max_iters=1000, gamma=0.01):
+def logistic_regression(y, x_ext, initial_w=None, max_iters=1000, gamma=0.01):
+
+    x = np.copy(x_ext)
     tx = np.c_[np.ones((y.shape[0], 1)), x]
     
-    if initial_w:
+    if initial_w is not None:
         w = initial_w
     else:
         w = np.zeros((tx.shape[1], 1))
         
-    for iter in range(max_iter):
+    for iter in range(max_iters):
         w = learning_by_gradient_descent(y, tx, w, gamma)
         if iter % 100 == 0:
-            loss = calculate_loss_fast(y, tx, w)
+            loss = calculate_loss_fast(y, x, w)
             print("Current iteration={i}, loss={l}".format(i=iter, l=loss))
+        
+    loss = calculate_loss_fast(y, x, w)
+    print("Last iteration={i}, loss={l}".format(i=max_iters, l=loss))
+    
     return w
 
 
