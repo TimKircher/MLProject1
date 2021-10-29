@@ -159,6 +159,20 @@ class Data_Cleaner:
         training_y = self.y[:split_index]
         testing_y = self.y[split_index:]   
         return training_x, testing_x, training_y, testing_y
+    
+    def treat_outliers (self, bot_percentage_bound, top_percentage_bound):
+        """
+        Given a top and bottom percentage bound it sets all outliers over or lower
+        of the corresponding bound to the value of the bound
+        """
+        for iter_ in range(self.tX.shape[1]):
+            feature = self.tX[:,iter_]
+            bot_bound = np.nanpercentile(feature, bot_percentage_bound)
+            top_bound = np.nanpercentile(feature, top_percentage_bound)
+            bot_criterion = np.where(feature < bot_bound)
+            top_criterion = np.where(feature > top_bound)
+            feature[bot_criterion] = bot_bound
+            feature[top_criterion] = top_bound
      
     def getMinMax(self):
         """
