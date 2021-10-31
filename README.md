@@ -8,7 +8,7 @@ Our code is divided in 5 folders :
 1. data : Contains the data provided by the Higgs challenge (train and test set) to train and test our models.
 2. Documents : Contains the project description given by the course and the Higgs challenge documentation
 3. Notebooks : Contains
-              - data_exploration.ipynb : Notebook used for the data exploration associated with the training provided by the Higgs challenge
+- data_exploration.ipynb : Notebook used for the data exploration associated with the training provided by the Higgs challenge
               - implementations_pipeline.ipynb : Notebook used to compare the accuracy of our models using the 6 basic method implementations with different 
                                                  feature engineering techniques
               - final_model.ipynb : Notebook with the final model that we used for our AIcrowd submission
