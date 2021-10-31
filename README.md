@@ -9,12 +9,12 @@ Our code is divided in 5 folders :
 2. Documents : Contains the project description given by the course and the Higgs challenge documentation
 3. Notebooks : Contains
 - data_exploration.ipynb : Notebook used for the data exploration associated with the training provided by the Higgs challenge
-              - implementations_pipeline.ipynb : Notebook used to compare the accuracy of our models using the 6 basic method implementations with different 
+- implementations_pipeline.ipynb : Notebook used to compare the accuracy of our models using the 6 basic method implementations with different 
                                                  feature engineering techniques
-              - final_model.ipynb : Notebook with the final model that we used for our AIcrowd submission
+- final_model.ipynb : Notebook with the final model that we used for our AIcrowd submission
 4. plots : Contains different kinds of plots describing the provided training dataset 
 5. scripts : Contains 
-              - implementations.py : The 6 basic method implementations required
-              - compute.py : Contains functions associated with computing a value or a vector (Error vector, MSE, Gradient etc.)
-              - proj1_helpers.py : Contains functions provided by the course labs aimed to help our project
-              - data_cleaner.py : Contains a class that is responsible for handling the data ( Cleaning, Feature Engineering, Splitting the data, etc.)
+- implementations.py : The 6 basic method implementations required
+- compute.py : Contains functions associated with computing a value or a vector (Error vector, MSE, Gradient etc.)
+- proj1_helpers.py : Contains functions provided by the course labs aimed to help our project
+- data_cleaner.py : Contains a class that is responsible for handling the data ( Cleaning, Feature Engineering, Splitting the data, etc.)
