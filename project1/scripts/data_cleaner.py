@@ -60,7 +60,8 @@ class Data_Cleaner:
     """
     
     def _load_data(self, DATAPATH):
-        """function that loads the dataset in .csv format from DATAPATH
+        """
+        Function that loads the dataset in .csv format from DATAPATH
         """
         self.y, self.tX, self.ids = load_csv_data(DATAPATH)
         with open(DATAPATH) as fileobj:
@@ -82,41 +83,56 @@ class Data_Cleaner:
             self._load_data(self.DATAPATH)
             
             
+            
     def _fill_with_NaN(self):
-        """fills the values that are -999. with np.NaN
+        """
+        Fills the values that are -999. with np.NaN
         """
         for feature_name, index in self.feature_names.items():
             self.tX[:,index][self.tX[:,index] == -999.] = np.NaN
-        
-        #we have to check if we only need to replace -999.
-        """if feature_name not in ["PRI_jet_all_pt","DER_lep_eta_centrality"]:
-                self.tX[:,index][self.tX[:,index] == -999.] = np.NaN
-            else:
-                self.tX[:,index][self.tX[:,index] == -999.] = np.NaN
-                self.tX[:,index][self.tX[:,index] == 0] = np.NaN"""
     
     def replace_with_mean(self):
-        """replaces np.NaN values with collum (feature) mean 
+        """
+        Replaces np.NaN values with collum (feature) mean 
         """
         #TODO: Replace with mode, median, binary, hash ?
         
         #self._fill_with_NaN() #make auto_later
         #also handles all NaN collums -> replaces with 0
         self.tX = np.where(np.isnan(self.tX), np.ma.array(self.tX, mask=np.isnan(self.tX)).mean(axis=0), self.tX)
-     
-    
+        
+    def fix_mass_MMC(self, add_impute_array = True):
+        """
+        Replaces np.NaN values of first column (feature) with median value of the rest of them.
+        Additionaly, it creates another column whose value is 0 if the variable of the first
+        column is impute and 1 if it's not.
+        """
+        mass_MMC = self.tX[:,0]
+        tx = self.tX
+        
+        median = np.nanmedian(mass_MMC)        
+        imputed_array = np.ones(self.tX.shape[0])
+        imputed_array[np.isnan(mass_MMC)] = 0
+        
+        mass_MMC[np.isnan(mass_MMC)] = median
+        if add_impute_array:
+            self.tX = np.c_[self.tX,imputed_array]
+                  
     def replace_with_zero(self):
-        """replaces np.NaN values with 0 
+        """
+        Replaces np.NaN values with 0 
         """
         self.tX[np.isnan(self.tX)] = 0
         
     def replace_with_one(self):
-        """replaces np.NaN values with 1 
+        """
+        Replaces np.NaN values with 1 
         """
         self.tX[np.isnan(self.tX)] = 1
     
     def normalize(self):
-        """standardizes data
+        """
+        Standardizes data
         """
         mean = np.nanmean(self.tX,axis=0)
         std = np.nanstd(self.tX,axis=0)
@@ -124,25 +140,86 @@ class Data_Cleaner:
         self.tX = (self.tX-mean)/std
     
     def standardize(self):
-        """standardizes data
+        """
+        Standardizes data
         """
         minimum = np.min(self.tX,axis=0)
         maximum = np.max(self.tX,axis=0)
         
         self.tX = (self.tX-minimum)/(maximum-minimum)
+        
+    def split_data(self,percent):
+        """
+        Given a percentage it splits the dataset at that percentage
+        """
+        rows = len(self.y)
+        split_index = int(np.floor(percent / 100 * rows))
+        training_x = self.tX[:split_index,:]
+        testing_x = self.tX[split_index:,:]
+        training_y = self.y[:split_index]
+        testing_y = self.y[split_index:]   
+        return training_x, testing_x, training_y, testing_y
+    
+    def treat_outliers (self, bot_percentage_bound, top_percentage_bound):
+        """
+        Given a top and bottom percentage bound it sets all outliers over or lower
+        of the corresponding bound to the value of the bound
+        """
+        for iter_ in range(self.tX.shape[1]):
+            feature = self.tX[:,iter_]
+            bot_bound = np.nanpercentile(feature, bot_percentage_bound)
+            top_bound = np.nanpercentile(feature, top_percentage_bound)
+            bot_criterion = np.where(feature < bot_bound)
+            top_criterion = np.where(feature > top_bound)
+            feature[bot_criterion] = bot_bound
+            feature[top_criterion] = top_bound
      
     def getMinMax(self):
-        """get min and max to scale testset
+        """
+        Get min and max to scale testset
         """
         return np.min(self.tX, axis=0), np.max(self.tX, axis=0)
     
     def getMeanStd(self):
-        """standardizes data
+        """
+        Standardizes data
         """
         return np.mean(self.tX, axis=0), np.std(self.tX, axis=0)
     
+    def build_interactions(self):
+        x = self.tX
+        x_out = np.array(x)
+        for i in range(int(x.shape[1])):
+            x_i = x[:,0]
+            x = np.delete(x, 0, 1)
+            x_interact = (x_i*x.T).T
+            x_out = np.hstack([x_out,x_interact])
+        self.tX = x_out
+
+    def build_polynomial(self,degree, add_degree_zero=False):
+        """
+        polynomial basis functions for input data x, for j=0 up to j=degree.
+        """
+        x = self.tX
+        if add_degree_zero:
+            xN = np.hstack([np.ones([x.shape[0],1]),x])
+        else:
+            xN = x
+        if degree>0:
+            for i in range(degree-1):
+                xN = np.hstack([xN, x**(i+2)])
+        self.tX = np.array(xN)
+
+    
+    
+    
+    
+    
+    
+    
     def transform_to_pca(self,max_var=0.95,max_eigenvalue=None):
-        """pca transformation
+        """
+        PCA transformation
         """
         #self.normalize() make auto_later
         cov_mat = np.cov(self.tX.T) #calculate covariance matrix
@@ -169,7 +246,8 @@ class Data_Cleaner:
         #https://stats.stackexchange.com/questions/59392/should-you-ever-standardise-binary-variables
     
     def build_polynomials_from_degree_array(self,degrees):
-        """building polynomial features from array
+        """
+        Building polynomial features from array
         """
         #self.replace_with_mean() make auto_later
         data_polys = []
