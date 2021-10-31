@@ -186,6 +186,37 @@ class Data_Cleaner:
         """
         return np.mean(self.tX, axis=0), np.std(self.tX, axis=0)
     
+    def build_interactions(self):
+        x = self.tX
+        x_out = np.array(x)
+        for i in range(int(x.shape[1])):
+            x_i = x[:,0]
+            x = np.delete(x, 0, 1)
+            x_interact = (x_i*x.T).T
+            x_out = np.hstack([x_out,x_interact])
+        self.tX = x_out
+
+    def build_polynomial(self,degree, add_degree_zero=False):
+        """
+        polynomial basis functions for input data x, for j=0 up to j=degree.
+        """
+        x = self.tX
+        if add_degree_zero:
+            xN = np.hstack([np.ones([x.shape[0],1]),x])
+        else:
+            xN = x
+        if degree>0:
+            for i in range(degree-1):
+                xN = np.hstack([xN, x**(i+2)])
+        self.tX = np.array(xN)
+
+    
+    
+    
+    
+    
+    
+    
     def transform_to_pca(self,max_var=0.95,max_eigenvalue=None):
         """
         PCA transformation
