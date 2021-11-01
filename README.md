@@ -21,3 +21,4 @@ Our code is divided in 5 folders :
 - k_fold_validate_matthias.py : Builds the random indices for cross validation
 - linear_model_base.py : Abstract base class and child class for least squares and ridge regression. The class is used for the final submission and is intended to be easily extendable to new linear and nonlinear models
 - least_squares_matthias.py : An implementation of the closed-form least squares method
+- plots.py : Used in the beginning for initial plots but not anymore
