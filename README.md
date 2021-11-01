@@ -18,3 +18,4 @@ Our code is divided in 5 folders :
 - compute.py : Contains functions associated with computing a value or a vector (Error vector, MSE, Gradient etc.)
 - proj1_helpers.py : Contains functions provided by the course labs aimed to help our project
 - data_cleaner.py : Contains a class that is responsible for handling the data ( Cleaning, Feature Engineering, Splitting the data, etc.)
+- run.py : The run.py file required in the submission guidlines, reproducing our best submission
