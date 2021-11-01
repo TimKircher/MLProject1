@@ -35,9 +35,10 @@ def build_poly(x, degree, add_degree_zero=False):
 best_lambda = np.array([5.17947468e-10])
 
 #generate min/max for scaling test set according to original training 
-data = Data_Cleaner("C:/Users/Tim/Documents/GitHub/MLProject1/project1/data/train.csv")
+data = Data_Cleaner("../data/train.csv")
 #fill -999 with nan and replace nan with 1, due to log scaling 
 data._fill_with_NaN()
+data.fix_mass_MMC()
 data.replace_with_one()
 #find columns with multiscale input (max greater than 100)
 log_columns = np.max(data.tX, axis=0)>100
@@ -59,9 +60,10 @@ minimum, maximum = data_train.getMinMax()
 data_train.standardize()
 
 #generate predictions for testset
-data_upload = Data_Cleaner("C:/Users/Tim/Documents/GitHub/MLProject1/project1/data/test.csv")
+data_upload = Data_Cleaner("../data/test.csv")
 #fill -999 with nan and replace nan with 1, due to log scaling 
 data_upload._fill_with_NaN()
+data_upload.fix_mass_MMC()
 data_upload.replace_with_one()
 #find columns with multiscale input (max greater than 100)
 log_columns = np.max(data_upload.tX, axis=0)>100
@@ -82,4 +84,4 @@ data_upload.tX = data_upload.tX / (maximum - minimum)
 Model = RidgeRegression(data_train)
 weights = Model._run(lambda_ = best_lambda)
 y_pred = predict_labels(weights, data_upload.tX)
-create_csv_submission(data_upload.ids, y_pred, "C:/Users/Tim/Documents/GitHub/MLProject1/project1/data/FinalSubmission.csv")
+create_csv_submission(data_upload.ids, y_pred, "../results/FinalSubmission.csv")
