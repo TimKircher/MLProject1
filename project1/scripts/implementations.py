@@ -16,8 +16,8 @@ def least_squares_GD(y, tx, initial_w, max_iters, gamma):
         if iter_ % 250 == 0:
                 print("Current iteration :%d, loss= %.4f" %(iter_, loss)) 
                 
-        if loss < 0.1 :
-            break
+        """if loss < 0.1 :
+            break"""
     return w, loss
        
         
@@ -39,8 +39,8 @@ def least_squares_SGD(y, tx, initial_w, max_iters, gamma):
             if iter_ % 250 == 0:
                 print("Current iteration :%d, loss= %.4f" %(iter_, loss)) 
             
-            if loss < 0.1:
-                break
+            """if loss < 0.1:
+                break"""
     return w, loss
           
     
